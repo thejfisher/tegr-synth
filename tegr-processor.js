@@ -178,20 +178,7 @@ class TEGRProcessor extends AudioWorkletProcessor {
           // Monitor tension differential
           this.ereprPair.deltaGamma = Math.abs(vA.gamma - vB.gamma);
 
-          // AMPS Firewall: bond snaps if Δγ > 4.0
-          if (this.ereprPair.deltaGamma > 4.0) {
-            this.ereprPair.active = false;
-            // Topological thermal recoil: amplitude spike + noise burst
-            vA.amplitude = Math.min(1.0, vA.amplitude * 3.0);
-            vB.amplitude = Math.min(1.0, vB.amplitude * 3.0);
-            vA.firewallSamples = 6000;         // ~125 ms of noise at 48 kHz
-            vB.firewallSamples = 6000;
-            this.port.postMessage({
-              type: 'firewall',
-              noteA: this.ereprPair.noteA,
-              noteB: this.ereprPair.noteB
-            });
-          }
+          // No AMPS Firewall - bond never snaps (brakes taken off)
         } else {
           this.ereprPair.active = false;
         }
