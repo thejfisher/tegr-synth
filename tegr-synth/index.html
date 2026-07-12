@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEGR Synthesizer</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0a0a0a">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="description" content="A virtual instrument powered by teleparallel vacuum physics. Transform the 10D state vector into sound.">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <!-- ═══ Startup Overlay (AudioContext requires user gesture) ═══ -->
+  <div id="start-overlay">
+    <div class="start-brand">TEGR</div>
+    <div class="start-sub">Resonant Wave Defect Synthesizer</div>
+    <div class="start-hint">Click anywhere to initialize audio engine</div>
+  </div>
+
+  <!-- ═══ Main Application ═══ -->
+  <div id="app">
+
+    <!-- ── Header ──────────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-left">
+        <h1 class="brand">TEGR</h1>
+        <span class="brand-sub">Wave Defect Synth</span>
+      </div>
+      <div class="header-right">
+        <div class="mode-group">
+          <button class="mode-btn active" id="mode-natural" data-mode="natural">Natural</button>
+          <button class="mode-btn" id="mode-sandbox" data-mode="sandbox">Sandbox</button>
+          <button class="mode-btn" id="mode-adler" data-mode="adler">Adler RAE</button>
+        </div>
+        <button class="erepr-btn" id="erepr-btn">ER=EPR</button>
+        <div class="midi-status">
+          <span class="midi-dot" id="midi-dot"></span>
+          <span id="midi-label">MIDI</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Visualization ───────────────────────────────────── -->
+    <div class="viz-row">
+      <div class="viz-panel">
+        <div class="viz-label">Oscilloscope</div>
+        <canvas id="oscilloscope" width="500" height="140"></canvas>
+      </div>
+      <div class="viz-panel">
+        <div class="viz-label">Phase Wheel</div>
+        <span class="erepr-status" id="erepr-status"></span>
+        <canvas id="phase-wheel" width="500" height="140"></canvas>
+      </div>
+    </div>
+
+    <!-- ── Controls ────────────────────────────────────────── -->
+    <section class="controls-section">
+      <div class="controls-row">
+
+        <!-- State Vector Dials -->
+        <div class="control-group">
+          <div class="control-group-title">State Vector</div>
+          <div class="dials-grid">
+
+            <div class="dial-container">
+              <div class="dial" data-param="m0_offset" data-min="-1200" data-max="1200" data-value="0" data-format="cents" id="dial-m0">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">0</div>
+              </div>
+              <div class="dial-label">m₀ Tune</div>
+              <button class="dial-lock" data-lock="m0" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial pink-accent" data-param="gamma_drive" data-min="1" data-max="10" data-value="1" data-format="gamma" id="dial-gamma">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">1.0</div>
+              </div>
+              <div class="dial-label">γ Drive</div>
+              <button class="dial-lock" data-lock="gamma" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial" data-param="lambda_vac" data-min="0.05" data-max="5" data-value="2" data-format="time" id="dial-lambda">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">2.0s</div>
+              </div>
+              <div class="dial-label">Λ Decay</div>
+              <button class="dial-lock" data-lock="lambda" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial" data-param="torsion_g" data-min="0" data-max="1" data-value="0" data-format="pct" id="dial-torsion">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">0%</div>
+              </div>
+              <div class="dial-label">Torsion</div>
+              <button class="dial-lock" data-lock="torsion" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial" data-param="pauli_chi" data-min="0" data-max="1" data-value="0" data-format="pct" id="dial-pauli">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">0%</div>
+              </div>
+              <div class="dial-label">Pauli χ</div>
+              <button class="dial-lock" data-lock="pauli" title="Lock parameter">🔓</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Spatial Field Dials -->
+        <div class="control-group">
+          <div class="control-group-title">Spatial Field</div>
+          <div class="dials-grid">
+
+            <div class="dial-container">
+              <div class="dial pink-accent" data-param="x_pos" data-min="-1" data-max="1" data-value="0" data-format="pan" id="dial-x">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">C</div>
+              </div>
+              <div class="dial-label">X Pan</div>
+              <button class="dial-lock" data-lock="x" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial pink-accent" data-param="y_width" data-min="0" data-max="1" data-value="0" data-format="pct" id="dial-y">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">0%</div>
+              </div>
+              <div class="dial-label">Y Width</div>
+              <button class="dial-lock" data-lock="y" title="Lock parameter">🔓</button>
+            </div>
+
+            <div class="dial-container">
+              <div class="dial pink-accent" data-param="z_depth" data-min="0" data-max="1" data-value="0" data-format="pct" id="dial-z">
+                <div class="dial-pointer"></div>
+                <div class="dial-value">0%</div>
+              </div>
+              <div class="dial-label">Z Depth</div>
+              <button class="dial-lock" data-lock="z" title="Lock parameter">🔓</button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Piano Keyboard ──────────────────────────────────── -->
+    <section class="keyboard-section">
+      <div class="keyboard-header">
+        <div class="keyboard-label">Keyboard</div>
+        <div class="keyboard-hint">Use computer keys: Z–M (low) · Q–U (high)</div>
+      </div>
+      <div class="keyboard" id="keyboard"></div>
+    </section>
+
+    <!-- ── Bottom Bar ──────────────────────────────────────── -->
+    <div class="bottom-bar">
+      <div class="vol-group">
+        <span class="vol-label">VOL</span>
+        <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.01" value="0.7">
+        <span class="vol-value" id="vol-value">70%</span>
+      </div>
+      <div class="state-readout" id="state-readout">
+        <div class="state-item"><span class="state-key">Voices:</span><span class="state-val" id="sr-voices">0</span></div>
+        <div class="state-item"><span class="state-key">γ:</span><span class="state-val" id="sr-gamma">1.00</span></div>
+        <div class="state-item"><span class="state-key">θ:</span><span class="state-val" id="sr-theta">0.00</span></div>
+        <div class="state-item"><span class="state-key">Mode:</span><span class="state-val" id="sr-mode">NAT</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registered', reg))
+          .catch(err => console.log('Service Worker registration failed', err));
+      });
+    }
+  </script>
+</body>
+</html>

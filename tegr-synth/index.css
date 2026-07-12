@@ -1,0 +1,827 @@
+/* ============================================================
+   TEGR SYNTHESIZER — Design System
+   Resonant Wave Defect Virtual Instrument
+   Color Palette: Cyan (#00e5ff) + Hot Pink (#ff2d7b)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+
+/* ── Design Tokens ──────────────────────────────────────── */
+:root {
+  --bg:            #06060e;
+  --surface:       #0e0e1a;
+  --surface-2:     #141422;
+  --surface-glass: rgba(14, 14, 26, 0.75);
+  --border:        rgba(255, 255, 255, 0.05);
+  --border-hover:  rgba(255, 255, 255, 0.1);
+
+  --cyan:          #00e5ff;
+  --cyan-mid:      #00b8d4;
+  --cyan-dim:      rgba(0, 229, 255, 0.15);
+  --cyan-glow:     rgba(0, 229, 255, 0.35);
+
+  --pink:          #ff2d7b;
+  --pink-mid:      #e91e63;
+  --pink-dim:      rgba(255, 45, 123, 0.15);
+  --pink-glow:     rgba(255, 45, 123, 0.35);
+
+  --purple:        #a855f7;
+
+  --text:          #e4e4f0;
+  --text-dim:      #6b6b82;
+  --text-label:    #8888a0;
+
+  --radius:        12px;
+  --radius-lg:     20px;
+
+  --font:          'Inter', system-ui, -apple-system, sans-serif;
+  --mono:          'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Reset & Base ───────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(0, 229, 255, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 100%, rgba(255, 45, 123, 0.03) 0%, transparent 50%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+/* ── Startup Overlay ────────────────────────────────────── */
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 6, 14, 0.95);
+  backdrop-filter: blur(30px);
+  cursor: pointer;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#start-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#start-overlay .start-brand {
+  font-size: 8rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 45%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 40px var(--cyan-glow)) drop-shadow(0 0 80px var(--pink-glow));
+  animation: brand-pulse 3s ease-in-out infinite;
+  position: relative;
+  user-select: none;
+}
+
+/* Plastic shine overlay on TEGR text */
+#start-overlay .start-brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.25) 0%,
+    rgba(255,255,255,0.06) 40%,
+    transparent 100%
+  );
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+@keyframes brand-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 30px var(--cyan-glow)) drop-shadow(0 0 60px var(--pink-glow));
+  }
+  50% {
+    filter: drop-shadow(0 0 50px rgba(0,229,255,0.5)) drop-shadow(0 0 100px rgba(255,45,123,0.4));
+  }
+}
+
+#start-overlay .start-sub {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  margin-top: 1rem;
+}
+
+#start-overlay .start-hint {
+  margin-top: 3rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  opacity: 0.7;
+  animation: hint-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ── App Container ──────────────────────────────────────── */
+#app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem 2rem;
+}
+
+/* ── Header ─────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.brand {
+  font-size: 2.4rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 45%, var(--pink) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px var(--cyan-glow));
+  position: relative;
+  line-height: 1;
+}
+
+/* Plastic shine on inline brand */
+.brand::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.18) 0%,
+    rgba(255,255,255,0.03) 60%,
+    transparent 100%
+  );
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.brand-sub {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ── Mode Buttons ───────────────────────────────────────── */
+.mode-group {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.mode-btn {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: none;
+  padding: 0.4rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.mode-btn:not(:last-child) {
+  border-right: 1px solid var(--border);
+}
+
+.mode-btn.active {
+  background: var(--cyan-dim);
+  color: var(--cyan);
+  box-shadow: inset 0 0 12px var(--cyan-dim);
+}
+
+.mode-btn:hover:not(.active) {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+/* ER=EPR Toggle */
+.erepr-btn {
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.4rem 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.erepr-btn.active {
+  background: var(--pink-dim);
+  color: var(--pink);
+  border-color: var(--pink-mid);
+  box-shadow: 0 0 16px var(--pink-dim), inset 0 0 12px rgba(255,45,123,0.08);
+  animation: erepr-glow 2s ease-in-out infinite;
+}
+
+@keyframes erepr-glow {
+  0%, 100% { box-shadow: 0 0 12px var(--pink-dim), inset 0 0 8px rgba(255,45,123,0.05); }
+  50% { box-shadow: 0 0 24px var(--pink-glow), inset 0 0 14px rgba(255,45,123,0.1); }
+}
+
+.erepr-btn:hover:not(.active) {
+  border-color: var(--pink-mid);
+  color: var(--pink);
+}
+
+/* MIDI Status */
+.midi-status {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.midi-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  transition: all 0.3s ease;
+}
+
+.midi-dot.connected {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan-glow);
+}
+
+/* ── Visualization Panel ────────────────────────────────── */
+.viz-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.viz-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.viz-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--cyan-dim), transparent);
+}
+
+.viz-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.viz-panel canvas {
+  width: 100%;
+  height: 140px;
+  display: block;
+  border-radius: 6px;
+}
+
+/* ER=EPR Status */
+.erepr-status {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  transition: color 0.3s;
+}
+
+.erepr-status.active {
+  color: var(--pink);
+}
+
+.erepr-status.snapped {
+  color: #ff6b6b;
+  animation: firewall-flash 0.5s ease-out;
+}
+
+@keyframes firewall-flash {
+  0% { color: #fff; text-shadow: 0 0 20px #ff0000; }
+  100% { color: #ff6b6b; text-shadow: none; }
+}
+
+/* ── Controls Panel ─────────────────────────────────────── */
+.controls-section {
+  margin-bottom: 1.5rem;
+}
+
+.controls-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.control-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  flex: 1;
+}
+
+.control-group-title {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.dials-grid {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Rotary Dial ────────────────────────────────────────── */
+.dial-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  user-select: none;
+}
+
+.dial {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #1a1a2e 0%, #0d0d1a 100%);
+  border: 2px solid var(--cyan-dim);
+  position: relative;
+  cursor: grab;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.dial:hover {
+  border-color: var(--cyan-mid);
+  box-shadow: 0 0 16px var(--cyan-dim);
+}
+
+.dial:active {
+  cursor: grabbing;
+}
+
+.dial.pink-accent {
+  border-color: var(--pink-dim);
+}
+
+.dial.pink-accent:hover {
+  border-color: var(--pink-mid);
+  box-shadow: 0 0 16px var(--pink-dim);
+}
+
+/* Track ring (subtle arc showing range) */
+.dial::before {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.03);
+}
+
+/* Pointer indicator */
+.dial-pointer {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 2px;
+  height: 26px;
+  background: linear-gradient(to top, rgba(0,229,255,0.1), var(--cyan));
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(var(--angle, -135deg));
+  border-radius: 1px;
+  transition: none;
+  pointer-events: none;
+}
+
+.dial.pink-accent .dial-pointer {
+  background: linear-gradient(to top, rgba(255,45,123,0.1), var(--pink));
+}
+
+/* Pointer tip dot */
+.dial-pointer::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 6px var(--cyan);
+}
+
+.dial.pink-accent .dial-pointer::after {
+  background: var(--pink);
+  box-shadow: 0 0 6px var(--pink);
+}
+
+/* Center value display */
+.dial-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--text);
+  pointer-events: none;
+}
+
+/* Label */
+.dial-label {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  color: var(--text-label);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Lock toggle */
+.dial-lock {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0.3;
+  transition: opacity 0.2s, transform 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.dial-lock:hover {
+  opacity: 0.7;
+  transform: scale(1.15);
+}
+
+.dial-lock.locked {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px var(--pink));
+}
+
+/* ── Keyboard ───────────────────────────────────────────── */
+.keyboard-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem 1.2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.keyboard-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--pink-dim), transparent);
+}
+
+.keyboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.keyboard-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.keyboard-hint {
+  font-family: var(--mono);
+  font-size: 0.5rem;
+  color: var(--text-dim);
+  opacity: 0.5;
+}
+
+.keyboard {
+  display: flex;
+  position: relative;
+  height: 150px;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.key {
+  position: relative;
+  cursor: pointer;
+  transition: all 0.08s ease;
+  border-radius: 0 0 5px 5px;
+  user-select: none;
+}
+
+.key-white {
+  width: 38px;
+  height: 150px;
+  background: linear-gradient(180deg, #e8e8f0 0%, #d0d0da 100%);
+  border: 1px solid rgba(0,0,0,0.15);
+  margin-right: 1px;
+  z-index: 1;
+}
+
+.key-white:hover {
+  background: linear-gradient(180deg, #f0f0ff 0%, #dddde8 100%);
+}
+
+.key-white.active {
+  background: linear-gradient(180deg,
+    rgba(0, 229, 255, 0.3) 0%,
+    rgba(0, 229, 255, 0.15) 100%
+  );
+  border-color: var(--cyan-mid);
+  box-shadow: 0 0 12px var(--cyan-dim), inset 0 -4px 8px rgba(0,229,255,0.1);
+  transform: scaleY(0.98);
+  transform-origin: top;
+}
+
+.key-black {
+  width: 24px;
+  height: 95px;
+  background: linear-gradient(180deg, #2a2a3a 0%, #1a1a28 60%, #0e0e1a 100%);
+  border: 1px solid rgba(0,0,0,0.4);
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  border-radius: 0 0 4px 4px;
+}
+
+.key-black:hover {
+  background: linear-gradient(180deg, #363646 0%, #2a2a38 60%, #1a1a28 100%);
+}
+
+.key-black.active {
+  background: linear-gradient(180deg,
+    rgba(255, 45, 123, 0.4) 0%,
+    rgba(255, 45, 123, 0.2) 60%,
+    rgba(255, 45, 123, 0.1) 100%
+  );
+  border-color: var(--pink-mid);
+  box-shadow: 0 0 10px var(--pink-dim);
+  transform: scaleY(0.97);
+  transform-origin: top;
+}
+
+/* Computer key hint on white keys */
+.key-hint {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 0.45rem;
+  color: rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+.key-black .key-hint {
+  color: rgba(255,255,255,0.2);
+  bottom: 4px;
+  font-size: 0.4rem;
+}
+
+/* ── Volume Slider (bottom bar) ─────────────────────────── */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 0.6rem 0;
+}
+
+.vol-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.vol-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+}
+
+.vol-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 120px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  outline: none;
+  cursor: pointer;
+}
+
+.vol-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cyan);
+  cursor: grab;
+  box-shadow: 0 0 8px var(--cyan-dim);
+  transition: box-shadow 0.2s;
+}
+
+.vol-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 14px var(--cyan-glow);
+}
+
+.vol-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--cyan);
+  cursor: grab;
+  border: none;
+  box-shadow: 0 0 8px var(--cyan-dim);
+}
+
+.vol-value {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text);
+  min-width: 2.5em;
+  text-align: right;
+}
+
+/* ── State Vector Readout ───────────────────────────────── */
+.state-readout {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: var(--text-dim);
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.state-item {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.state-key {
+  color: var(--text-label);
+}
+
+.state-val {
+  color: var(--cyan);
+  font-weight: 700;
+  min-width: 3em;
+}
+
+/* ── Firewall Flash Effect ──────────────────────────────── */
+.firewall-active {
+  animation: firewall-screen 0.6s ease-out;
+}
+
+@keyframes firewall-screen {
+  0% {
+    box-shadow: inset 0 0 100px rgba(255, 45, 123, 0.4);
+  }
+  100% {
+    box-shadow: none;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 800px) {
+  #app {
+    padding: 1rem;
+  }
+  .viz-row {
+    grid-template-columns: 1fr;
+  }
+  .controls-row {
+    flex-direction: column;
+  }
+  .keyboard {
+    height: 120px;
+    overflow-x: auto;
+  }
+  .key-white {
+    width: 30px;
+    height: 120px;
+  }
+  .key-black {
+    width: 20px;
+    height: 75px;
+  }
+  .brand {
+    font-size: 1.8rem;
+  }
+  #start-overlay .start-brand {
+    font-size: 4rem;
+  }
+}
+
+/* ── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-2);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.1);
+}
