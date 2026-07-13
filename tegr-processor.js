@@ -169,11 +169,15 @@ class TEGRProcessor extends AudioWorkletProcessor {
         const vA = this.voices.get(this.ereprPair.noteA);
         const vB = this.voices.get(this.ereprPair.noteB);
         if (vA && vB && vA.active && vB.active) {
-          // Bidirectional phase averaging (Paper 3 correction)
-          const mid = (vA.theta + vB.theta) * 0.5;
+          // Bidirectional phase averaging (Shortest path on the circle)
+          let diff = (vB.theta - vA.theta) % (2 * Math.PI);
+          // Wrap difference to [-π, π]
+          if (diff > Math.PI) diff -= 2 * Math.PI;
+          if (diff < -Math.PI) diff += 2 * Math.PI;
+          
           const pull = 0.005;                  // gentle sync rate
-          vA.theta += (mid - vA.theta) * pull;
-          vB.theta += (mid - vB.theta) * pull;
+          vA.theta += (diff * 0.5) * pull;
+          vB.theta -= (diff * 0.5) * pull;
 
           // Monitor tension differential
           this.ereprPair.deltaGamma = Math.abs(vA.gamma - vB.gamma);
