@@ -109,7 +109,12 @@ class TEGRProcessor extends AudioWorkletProcessor {
         break;
       }
       case 'param':
-        if (data.name in this.params) {
+        if (data.name === 'erepr_pull_pct') {
+          // Map 0-1 to 1e-6 (very slow) to 1e-2 (very fast)
+          const minP = Math.log10(0.000001);
+          const maxP = Math.log10(0.01);
+          this.params.erepr_pull = Math.pow(10, minP + (maxP - minP) * data.value);
+        } else if (data.name in this.params) {
           this.params[data.name] = data.value;
         }
         break;
