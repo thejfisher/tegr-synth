@@ -175,7 +175,9 @@ class TEGRProcessor extends AudioWorkletProcessor {
           if (diff > Math.PI) diff -= 2 * Math.PI;
           if (diff < -Math.PI) diff += 2 * Math.PI;
           
-          const pull = 0.005;                  // gentle sync rate
+          // Slow down the pull rate significantly (from 0.005 to 0.00005)
+          // At 48kHz, this creates a slow ~200ms frequency bend instead of a 4ms instant snap/chirp.
+          const pull = 0.00005; 
           vA.theta += (diff * 0.5) * pull;
           vB.theta -= (diff * 0.5) * pull;
 
