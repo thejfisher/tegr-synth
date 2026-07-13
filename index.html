@@ -35,6 +35,10 @@
           <button class="mode-btn" id="mode-adler" data-mode="adler">Adler RAE</button>
         </div>
         <button class="erepr-btn" id="erepr-btn">ER=EPR</button>
+        <div class="erepr-rate-group" id="erepr-rate-group" style="display: none; align-items: center; margin-left: 10px; background: rgba(0,0,0,0.4); padding: 2px 10px; border-radius: 4px; border: 1px solid #444;">
+          <span style="color: #0ff; font-size: 10px; text-transform: uppercase; margin-right: 8px;">Sync Speed</span>
+          <input type="range" id="erepr-rate-slider" min="0" max="100" value="50" style="width: 80px;" title="Adjusts how fast ER=EPR forces voices to phase lock">
+        </div>
         <div class="midi-status">
           <span class="midi-dot" id="midi-dot"></span>
           <span id="midi-label">MIDI</span>

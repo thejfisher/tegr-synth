@@ -69,6 +69,7 @@ class TEGRProcessor extends AudioWorkletProcessor {
       lambda_vac:  2.0,     // decay time constant in seconds
       torsion_g:   0.0,     // torsion cross-coupling (0 – 1)
       pauli_chi:   0.0,     // Pauli exchange pressure (0 – 1)
+      erepr_pull:  0.00005, // ER=EPR pull rate
       x_pos:       0.0,     // stereo pan  (-1 … +1)
       y_width:     0.0,     // stereo width (0 … 1)
       z_depth:     0.0,     // psychoacoustic depth (0 … 1)
@@ -176,8 +177,8 @@ class TEGRProcessor extends AudioWorkletProcessor {
           if (diff < -Math.PI) diff += 2 * Math.PI;
           
           // Slow down the pull rate significantly (from 0.005 to 0.00005)
-          // At 48kHz, this creates a slow ~200ms frequency bend instead of a 4ms instant snap/chirp.
-          const pull = 0.00005; 
+          // Use dynamic pull rate from UI (logarithmic mapping applied in app.js)
+          const pull = this.params.erepr_pull; 
           vA.theta += (diff * 0.5) * pull;
           vB.theta -= (diff * 0.5) * pull;
 

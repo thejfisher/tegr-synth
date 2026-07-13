@@ -663,13 +663,30 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── ER=EPR toggle ──
+  // ── ER=EPR toggle and Sync Rate Slider ──
   const ereprBtn = document.getElementById('erepr-btn');
+  const ereprRateGroup = document.getElementById('erepr-rate-group');
+  const ereprRateSlider = document.getElementById('erepr-rate-slider');
+
   if (ereprBtn) {
     ereprBtn.addEventListener('click', () => {
       state.erepr = !state.erepr;
       ereprBtn.classList.toggle('active', state.erepr);
+      if (ereprRateGroup) {
+        ereprRateGroup.style.display = state.erepr ? 'flex' : 'none';
+      }
       sendEREPR(state.erepr);
+    });
+  }
+
+  if (ereprRateSlider) {
+    ereprRateSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value);
+      // Map 0-100 to 1e-6 (very slow) to 1e-2 (very fast)
+      const minP = Math.log10(0.000001);
+      const maxP = Math.log10(0.01);
+      const scaled = Math.pow(10, minP + (maxP - minP) * (val / 100));
+      sendParam('erepr_pull', scaled);
     });
   }
 
